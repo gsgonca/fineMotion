@@ -17,6 +17,7 @@ let package = Package(
             name: "fineMotion",
             targets: ["AppModule"],
             bundleIdentifier: "GSG.fineMotion",
+            teamIdentifier: "JC774FDQ87",
             displayVersion: "1.0",
             bundleVersion: "1",
             appIcon: .placeholder(icon: .bandage),
