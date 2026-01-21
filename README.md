@@ -1,7 +1,5 @@
 # Fine Motion
 
-<img src="imagem.png" alt="Ícone de um dos jogos">
-
 > Este projeto tem como objetivo auxiliar paciêntes de fisioterapia com problemas de coordenação motora fina através de minigames que estimulam os músculos da mão responsáveis por precisão.
 
 ### Ajustes e melhorias
