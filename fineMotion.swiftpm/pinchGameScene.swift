@@ -5,42 +5,44 @@
 //  Created by Gabriel Santos Gonçalves on 16/01/26.
 //
 //
+
+
+                    
 import SpriteKit
 import SwiftUI
 
 class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
     
+/// Variables used to create, draw and close both paths. This turns them into closed shapes.
+// TODO: The way paths are made causes collision problems and should be refactored.
     var leftPath: UIBezierPath!
     var rightPath: UIBezierPath!
     
+/// Stores all nodes created in both paths in .didMove and uses them to check for collision in .update
     var leftPathNodes: [SKShapeNode] = []
     var rightPathNodes: [SKShapeNode] = []
     
-    let repeatPath = 8
+    @State var repeatPath = 2
     var pathHeight: CGFloat = 0
     
+/// Creates both controllers.
     let circleL = SKShapeNode(circleOfRadius: 40)
     let circleR = SKShapeNode(circleOfRadius: 40)
     
     struct PhysicsCategory {
         static let Controllers: UInt32 = 1
         static let Lines: UInt32 = 1
-        static let Controllers2: UInt32 = 1
-        static let Lines2: UInt32 = 1
     }
     
-    var originalLeftShape: SKShapeNode!
-    var originalRightShape: SKShapeNode!
-    var userTouchs = [CGPoint]()
-    var drawingLine: SKShapeNode!
-    
+/// Recognizes where a touch happens on the screen and stores the position as a SKNode.
     var activeTouches = [UITouch: SKNode]()
     
     var isGamePaused = false
     
+/// Changes its value based on where the controllers are positioned on the screen.
     var leftTouchingPath = false
     var rightTouchingPath = false
-    
+
     func pauseGame() {
         isGamePaused = true
     }
@@ -50,11 +52,14 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
     }
     
     override func didMove(to view: SKView) {
+        /// Enable multiple touches, this is crucial for the game to work.
         view.isMultipleTouchEnabled = true
+        /// Sets physics and collision in the game
         self.physicsWorld.contactDelegate = self
-        
+        /// Sets the screen height to its full vertical size, we use this to loop both paths.
         let screenHeight = self.size.height
         
+        ///Creates and positions the left path.
         leftPath = UIBezierPath()
         leftPath.move(to: CGPoint(x: 100, y: 0))
         leftPath.addLine(to: CGPoint(x: 200, y: screenHeight * 0.25))
@@ -62,6 +67,7 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
         leftPath.addLine(to: CGPoint(x: 200, y: screenHeight * 0.75))
         leftPath.addLine(to: CGPoint(x: 100, y: screenHeight))
         
+        ///Creates and positions the right path.
         rightPath = UIBezierPath()
         rightPath.move(to: CGPoint(x: 292, y: 0))
         rightPath.addLine(to: CGPoint(x: 200, y: screenHeight * 0.25))
@@ -69,11 +75,13 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
         rightPath.addLine(to: CGPoint(x: 200, y: screenHeight * 0.75))
         rightPath.addLine(to: CGPoint(x: 292, y: screenHeight))
         
+        ///Sets the pathHeight to be the value between the bottom and top sides on the leftPath boundingBox, we use this to offset the repeating subsequent paths.
         pathHeight = leftPath.cgPath.boundingBox.height
         
+        /// Creates repeated paths and offsets them in the y axis by their height, creating a visual loop.
         for i in 0..<repeatPath {
             let leftNode = createPathNode(path: leftPath, physicsCategory: PhysicsCategory.Lines, contactCategory: PhysicsCategory.Controllers)
-            let rightNode = createPathNode(path: rightPath, physicsCategory: PhysicsCategory.Lines2, contactCategory: PhysicsCategory.Controllers2)
+            let rightNode = createPathNode(path: rightPath, physicsCategory: PhysicsCategory.Lines, contactCategory: PhysicsCategory.Controllers)
             let yOffset = CGFloat(i) * pathHeight
             
             leftNode.position = CGPoint(x: 0,y: yOffset)
@@ -84,6 +92,8 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
             
             leftPathNodes.append(leftNode)
             rightPathNodes.append(rightNode)
+            
+            
         }
         setupControllers()
     }
@@ -124,8 +134,8 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
         circleR.physicsBody = SKPhysicsBody(circleOfRadius: 40)
         circleR.physicsBody?.affectedByGravity = false
         circleR.physicsBody?.isDynamic = false
-        circleR.physicsBody?.categoryBitMask = PhysicsCategory.Controllers2
-        circleR.physicsBody?.contactTestBitMask = PhysicsCategory.Lines2
+        circleR.physicsBody?.categoryBitMask = PhysicsCategory.Controllers
+        circleR.physicsBody?.contactTestBitMask = PhysicsCategory.Lines
         circleR.zPosition = 10
         addChild(circleR)
     }
@@ -212,8 +222,8 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
             (a == PhysicsCategory.Lines && b == PhysicsCategory.Controllers) {
             leftTouchingPath = true
         }
-        if (a == PhysicsCategory.Controllers2 && b == PhysicsCategory.Lines2) ||
-            (a == PhysicsCategory.Lines2 && b == PhysicsCategory.Controllers2) {
+        if (a == PhysicsCategory.Controllers && b == PhysicsCategory.Lines) ||
+            (a == PhysicsCategory.Lines && b == PhysicsCategory.Controllers) {
             rightTouchingPath = true
         }
         if leftTouchingPath && rightTouchingPath {
@@ -231,8 +241,8 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
                 pauseGame()
             }
             
-            if (a == PhysicsCategory.Controllers2 && b == PhysicsCategory.Lines2) ||
-                (a == PhysicsCategory.Lines2 && b == PhysicsCategory.Controllers2) {
+            if (a == PhysicsCategory.Controllers && b == PhysicsCategory.Lines) ||
+                (a == PhysicsCategory.Lines && b == PhysicsCategory.Controllers) {
                 rightTouchingPath = false
                 pauseGame()
             }
