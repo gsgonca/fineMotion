@@ -21,7 +21,7 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
     
     let circleL = SKShapeNode(circleOfRadius: 40)
     let circleR = SKShapeNode(circleOfRadius: 40)
-        
+    
     struct PhysicsCategory {
         static let Controllers: UInt32 = 1
         static let Lines: UInt32 = 1
@@ -36,6 +36,18 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
     
     var activeTouches = [UITouch: SKNode]()
     
+    var isGamePaused = false
+    
+    var leftTouchingPath = false
+    var rightTouchingPath = false
+    
+    func pauseGame() {
+        isGamePaused = true
+    }
+    
+    func resumeGame() {
+        isGamePaused = false
+    }
     
     override func didMove(to view: SKView) {
         view.isMultipleTouchEnabled = true
@@ -43,59 +55,21 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
         
         let screenHeight = self.size.height
         
-//        circleL.zPosition = 100
-//        circleL.name = "circleL"
-//        circleR.zPosition = 100
-//        circleR.name = "circleR"
-        
         leftPath = UIBezierPath()
-        leftPath.move(to: CGPoint(x: 8, y: 0))
+        leftPath.move(to: CGPoint(x: 100, y: 0))
         leftPath.addLine(to: CGPoint(x: 200, y: screenHeight * 0.25))
-        leftPath.addLine(to: CGPoint(x: 8, y: screenHeight * 0.50))
+        leftPath.addLine(to: CGPoint(x: 100, y: screenHeight * 0.50))
         leftPath.addLine(to: CGPoint(x: 200, y: screenHeight * 0.75))
-        leftPath.addLine(to: CGPoint(x: 8, y: screenHeight))
-     
-//        let leftPathBody = SKPhysicsBody(polygonFrom: leftPath.cgPath)
-//        leftPathBody.affectedByGravity = false
-//        leftPathBody.categoryBitMask = PhysicsCategory.Lines
-//        leftPathBody.contactTestBitMask = PhysicsCategory.Controllers
-//        leftPathBody.isDynamic = false
-        
-//        originalLeftShape = SKShapeNode(path: leftPath.cgPath)
-//        originalLeftShape.strokeColor = UIColor.cyan
-//        originalLeftShape.lineWidth = 30
-//        originalLeftShape.lineCap = .round
-//        originalLeftShape.lineJoin = .round
-//        originalLeftShape.zPosition = 0
-//        originalLeftShape.name = "orginal"
-//        originalLeftShape.physicsBody = leftPathBody
+        leftPath.addLine(to: CGPoint(x: 100, y: screenHeight))
         
         rightPath = UIBezierPath()
-        rightPath.move(to: CGPoint(x: 392, y: 0))
+        rightPath.move(to: CGPoint(x: 292, y: 0))
         rightPath.addLine(to: CGPoint(x: 200, y: screenHeight * 0.25))
-        rightPath.addLine(to: CGPoint(x: 392, y: screenHeight * 0.50))
+        rightPath.addLine(to: CGPoint(x: 292, y: screenHeight * 0.50))
         rightPath.addLine(to: CGPoint(x: 200, y: screenHeight * 0.75))
-        rightPath.addLine(to: CGPoint(x: 392, y: screenHeight))
+        rightPath.addLine(to: CGPoint(x: 292, y: screenHeight))
         
         pathHeight = leftPath.cgPath.boundingBox.height
-        
-//        let rightPathBody = SKPhysicsBody(polygonFrom: rightPath.cgPath)
-//        rightPathBody.affectedByGravity = false
-//        rightPathBody.categoryBitMask = PhysicsCategory.Lines2
-//        rightPathBody.contactTestBitMask = PhysicsCategory.Controllers2
-//        rightPathBody.isDynamic = false
-//        
-//        originalRightShape = SKShapeNode(path: rightPath.cgPath)
-//        originalRightShape.strokeColor = UIColor.cyan
-//        originalRightShape.lineWidth = 30
-//        originalRightShape.lineCap = .round
-//        originalRightShape.lineJoin = .round
-//        originalRightShape.zPosition = 0
-//        originalRightShape.name = "orginal"
-//        originalRightShape.physicsBody = rightPathBody
-        
-//        controllerLeft()
-//        controllerRight()
         
         for i in 0..<repeatPath {
             let leftNode = createPathNode(path: leftPath, physicsCategory: PhysicsCategory.Lines, contactCategory: PhysicsCategory.Controllers)
@@ -113,48 +87,6 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
         }
         setupControllers()
     }
-    
-//    func pathMovement() {
-//        let speed: CGFloat = 250
-//        
-//        let moveDown = SKAction.moveBy(x: 0, y: -speed, duration: 1)
-//        let moveForever = SKAction.repeatForever(moveDown)
-//        
-//        originalLeftShape.run(moveForever)
-//        originalRightShape.run(moveForever)
-//    }
-    
-//    func controllerLeft() {
-//        circleL.fillColor = UIColor.blue
-//        circleL.position = CGPoint(x: 90, y: 90)
-//        
-//        circleL.physicsBody = SKPhysicsBody(circleOfRadius: 40)
-//        circleL.physicsBody?.affectedByGravity = false
-//        circleL.physicsBody?.isDynamic = false
-//        circleL.physicsBody?.categoryBitMask = PhysicsCategory.Controllers
-//        circleL.physicsBody?.contactTestBitMask = PhysicsCategory.Lines
-//        
-//        circleL.name = "circleL"
-//        circleL.zPosition = 10
-//        
-//        addChild(circleL)
-//    }
-//    
-//    func controllerRight() {
-//        circleR.fillColor = UIColor.blue
-//        circleR.position = CGPoint(x: 310, y: 90)
-//        
-//        circleR.physicsBody = SKPhysicsBody(circleOfRadius: 40)
-//        circleR.physicsBody?.affectedByGravity = false
-//        circleR.physicsBody?.isDynamic = false
-//        circleR.physicsBody?.categoryBitMask = PhysicsCategory.Controllers2
-//        circleR.physicsBody?.contactTestBitMask = PhysicsCategory.Lines2
-//        
-//        circleR.name = "circleR"
-//        circleR.zPosition = 10
-//        
-//        addChild(circleR)
-//    }
     
     func createPathNode(path: UIBezierPath, physicsCategory: UInt32, contactCategory: UInt32) -> SKShapeNode {
         let body = SKPhysicsBody(polygonFrom: path.cgPath)
@@ -185,7 +117,7 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
         circleL.physicsBody?.contactTestBitMask = PhysicsCategory.Lines
         circleL.zPosition = 10
         addChild(circleL)
-                    
+        
         circleR.fillColor = UIColor.blue
         circleR.position = CGPoint(x: 310, y: 90)
         circleR.name = "circleR"
@@ -199,6 +131,19 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
+        
+        let tolerance: CGFloat = 20
+        
+        leftTouchingPath = isController(circleL, nearPathNodes: leftPathNodes, tolerance: tolerance)
+        rightTouchingPath = isController(circleR, nearPathNodes: rightPathNodes, tolerance: tolerance)
+        
+        if leftTouchingPath && rightTouchingPath {
+            isGamePaused = false
+        } else {
+            isGamePaused = true
+        }
+        
+        if isGamePaused { return }
         
         let speed: CGFloat = 250
         let deltaY = speed / 60
@@ -217,6 +162,16 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
                 node.position.y += pathHeight * CGFloat(repeatPath)
             }
         }
+    }
+    
+    func isController(_ controller: SKShapeNode, nearPathNodes nodes: [SKShapeNode], tolerance: CGFloat) -> Bool {
+        for node in nodes {
+            let nodeFrame = node.frame
+            if nodeFrame.insetBy(dx: -tolerance, dy: -tolerance).contains(controller.position) {
+                return true
+            }
+        }
+        return false
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -250,11 +205,36 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
     }
     
     @MainActor func didBegin(_ contact: SKPhysicsContact) {
-        print("contato")
+        let a = contact.bodyA.categoryBitMask
+        let b = contact.bodyB.categoryBitMask
+        
+        if (a == PhysicsCategory.Controllers && b == PhysicsCategory.Lines) ||
+            (a == PhysicsCategory.Lines && b == PhysicsCategory.Controllers) {
+            leftTouchingPath = true
+        }
+        if (a == PhysicsCategory.Controllers2 && b == PhysicsCategory.Lines2) ||
+            (a == PhysicsCategory.Lines2 && b == PhysicsCategory.Controllers2) {
+            rightTouchingPath = true
+        }
+        if leftTouchingPath && rightTouchingPath {
+            resumeGame()
+        }
     }
-    
-    @MainActor func didEnd(_ contact: SKPhysicsContact) {
-        print("Cabô o contato")
+        
+        @MainActor func didEnd(_ contact: SKPhysicsContact) {
+            let a = contact.bodyA.categoryBitMask
+            let b = contact.bodyB.categoryBitMask
+            
+            if (a == PhysicsCategory.Controllers && b == PhysicsCategory.Lines) ||
+                (a == PhysicsCategory.Lines && b == PhysicsCategory.Controllers) {
+                leftTouchingPath = false
+                pauseGame()
+            }
+            
+            if (a == PhysicsCategory.Controllers2 && b == PhysicsCategory.Lines2) ||
+                (a == PhysicsCategory.Lines2 && b == PhysicsCategory.Controllers2) {
+                rightTouchingPath = false
+                pauseGame()
+            }
+        }
     }
-}
-
