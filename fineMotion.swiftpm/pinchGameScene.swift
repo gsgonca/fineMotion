@@ -92,12 +92,11 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
             
             leftPathNodes.append(leftNode)
             rightPathNodes.append(rightNode)
-            
-            
         }
         setupControllers()
     }
     
+/// Customizes how the path works on it's enviroment and it's style.
     func createPathNode(path: UIBezierPath, physicsCategory: UInt32, contactCategory: UInt32) -> SKShapeNode {
         let body = SKPhysicsBody(polygonFrom: path.cgPath)
         body.isDynamic = false
@@ -118,7 +117,7 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
     
     func setupControllers() {
         circleL.fillColor = UIColor.blue
-        circleL.position = CGPoint(x: 90, y: 90)
+        circleL.position = CGPoint(x: 90, y: 380)
         circleL.name = "circleL"
         circleL.physicsBody = SKPhysicsBody(circleOfRadius: 40)
         circleL.physicsBody?.affectedByGravity = false
@@ -129,7 +128,7 @@ class GameScene: SKScene, @preconcurrency SKPhysicsContactDelegate {
         addChild(circleL)
         
         circleR.fillColor = UIColor.blue
-        circleR.position = CGPoint(x: 310, y: 90)
+        circleR.position = CGPoint(x: 310, y: 380)
         circleR.name = "circleR"
         circleR.physicsBody = SKPhysicsBody(circleOfRadius: 40)
         circleR.physicsBody?.affectedByGravity = false
